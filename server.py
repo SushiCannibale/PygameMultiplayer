@@ -1,39 +1,81 @@
 import socket
-from threading import Thread
+from _thread import *
+from player import Player
+import pickle
 
-def send_client(client):
-	while True:
-		msg = str(input("> "))
-		data = msg.encode('utf-8')
-		client.sendall(data)
-		print(f"Envoyé : {msg}")
+from random import randint
 
-def recv_client(client):
-	while True:
-		in_data = client.recv(1024)
-		in_msg = in_data.decode('utf-8')
-		print(f"[Reçu] : {in_msg}")
-		if not in_msg:
-			print("Connexion perdue :'(")
-			break
+server, port = '192.168.113.191', 5555
+server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
-server, port = ('192.168.1.23', 5566)
+try:
+    server_socket.bind((server, port))
+except socket.error as e:
+    print(e)
 
-socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-socket.bind((server, port))
+server_socket.listen()
+print("[Server] : En attente de connexions...")
 
-socket.listen()
-client, address = socket.accept()
+# liste des joueurs connectés
+# 1: <Player>, 2:<Player>, ...
+players = {}
 
-thread_envoi = Thread(target=send_client, args=[client])
-thread_recv = Thread(target=recv_client, args=[client])
+client_number = 0
 
-# démarre l'async
-thread_envoi.start()
-thread_recv.start()
+"""
+Thread propre à chaque client
+"""
+def threaded_client(client, player_uid):
+    global client_number
+    # envoie l'obj <Player>, correspondant au player_uid, au client
+    client.send(pickle.dumps(players[player_uid]))
 
-# attends la fin des threads pour close
-thread_recv.join()
+    while True: # tant que le client est connecté
+        try:
+            # récupère le nouvel obj <Player> (envoyé par le client) -> type(data) = dict
+            data = pickle.loads(client.recv(2048))
+            players[player_uid] = data  # met a jour l'obj <Player> coté serveur /!\ pas de vérification /!\
 
-client.close()
-socket.close()
+            if not data:
+                print("Déconnecté !")
+                break
+
+            else:
+                print("[Reçu] :", data)
+
+                print("[Envoi] :", players)
+
+            client.sendall(pickle.dumps(players)) # envoie le dict de tout les joueurs au client propriétaire du thread
+
+        # Si un joueur se déconnecte, alors client.recv() renvoie une erreur
+        except EOFError as e:
+            print(e)
+            break
+
+        except socket.error as e:
+            print(e)
+            break
+
+    # si le client se déconnecte, on supprime l'obj <Player> correspondant
+    print("Connexion perdue...")
+    client.close()
+    del players[player_uid]
+
+"""
+Création d'un thread différent pour chaque 
+client tant que le serveur est en marche
+"""
+while True:
+    connection, address = server_socket.accept()
+    print("Connecté à :", address)
+
+    print("[----- DEBUG -----] players :", players)
+    color = (randint(100, 255), randint(100, 255), randint(100, 255))
+
+    # créé une nouvelle instance de <Player>
+    players[client_number] = Player(color, 0, 0, 40, 40, client_number)
+
+    # démarrage d'un thread pour chaque nouvelle connexion (non bloquant)
+    start_new_thread(threaded_client, (connection, client_number))
+
+    client_number += 1

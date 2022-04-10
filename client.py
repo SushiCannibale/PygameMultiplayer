@@ -1,29 +1,57 @@
-import socket
-from threading import Thread
+from network import Network
+import pygame as pg
 
-def send_server(server):
-	while True:
-		msg = str(input("> "))
-		data = msg.encode('utf-8')
-		server.sendall(data)
-		print(f"Envoyé : {msg}")
+class Client:
+    def __init__(self):
+        pg.init()
+        self.width = 500
+        self.height = 500
+        self.size = (self.width, self.height)
+        self.screen = pg.display.set_mode(self.size)
 
-def recv_server(server):
-	while True:
-		in_data = server.recv(1024)
-		in_msg = in_data.decode('utf-8')
-		print(f"[Reçu] : {in_msg}")
+        self.network = Network()
+        # Le joueur que controle le client
+        self.player = self.network.get_player()
+        # Les autres joueurs
+        self.other_players = self.network.send(self.player)
 
+        self.clock = pg.time.Clock()
 
-server, port = ('192.168.1.23', 5566)
+        self.running = True
 
-socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+        pg.display.set_caption(f"Client n°{self.player.uid}")
 
-socket.connect((server, port))
-print('Connecté !')
+    def events(self):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                self.running = False
+                return
 
-thread_envoi = Thread(target=send_server, args=[socket])
-thread_recv = Thread(target=recv_server, args=[socket])
+    def clear_screen(self):
+        self.screen.fill((12, 12, 12))
 
-thread_envoi.start()
-thread_recv.start()
+    def draw_players(self, player_dict):
+        for player in player_dict.values():
+            player.draw(self.screen)
+
+    def run(self):
+        self.running = True
+        while self.running:
+            self.clock.tick(60)
+
+            # à chaque tick, on update les stats des autres joueurs
+            self.other_players = self.network.send(self.player)
+            print(self.other_players)
+
+            self.events()
+
+            self.clear_screen()
+            self.player.move()
+            self.draw_players(self.other_players)
+            pg.display.update()
+
+        print(f"Client déconnecté")
+        pg.quit()
+
+client = Client()
+client.run()
