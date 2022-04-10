@@ -7,7 +7,7 @@ Le network fait le lien entre le serveur et le client
 class Network:
     def __init__(self):
         self.client = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-        self.server = '192.168.113.191' # ip du server
+        self.server = 'XXX.XXX.XXX.XXX' # ip du server
         self.port = 5555
         self.address = (self.server, self.port)
 

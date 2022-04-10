@@ -5,7 +5,7 @@ import pickle
 
 from random import randint
 
-server, port = '192.168.113.191', 5555
+server, port = 'XXX.XXX.XXX.XXX', 5555
 server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
 try:
