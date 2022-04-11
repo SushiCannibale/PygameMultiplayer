@@ -14,6 +14,9 @@ class Network:
         # récupère le joueur initialement envoyé par le serveur
         self.player = self.connect()
 
+    def connect_player(self):
+        return self.connect()
+
     def get_player(self):
         return self.player
 
@@ -22,7 +25,7 @@ class Network:
             self.client.connect(self.address)
             pickle_data = pickle.loads(self.client.recv(2048))
             return pickle_data
-        except socket.error as e:
+        except socket.error as e: # # si le serveur n'est pas démarré
             print(e)
 
     # envoie des données au serveur
