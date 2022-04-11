@@ -5,8 +5,8 @@ from threading import Thread
 class Client:
     def __init__(self):
         pg.init()
-        self.width = 500
-        self.height = 500
+        self.width = 800
+        self.height = 800
         self.size = (self.width, self.height)
         self.screen = pg.display.set_mode(self.size)
 
@@ -54,17 +54,24 @@ class Client:
             self.events()
             self.clear_screen()
 
+
             if self.player:
                 pg.display.set_caption(f"Client n°{self.player.uid} - {self.clock.get_fps():.2f} FPS")
 
                 # à chaque tick, on update les stats des autres joueurs
                 self.other_players = self.network.send(self.player)
 
-                print("acc :", self.player.acc, "vel :", self.player.vel)
-
-
                 self.player.move()
+
+                m_pos = pg.mouse.get_pos()
+                for player in self.other_players.values():
+                    if player.rect.collidepoint(m_pos):
+                        #print(player.uid)
+                        pg.draw.line(self.screen, (255, 0, 0), self.player.pos, m_pos)
+                    else:
+                        pg.draw.line(self.screen, (255, 255, 255), self.player.pos, m_pos)
                 self.draw_players(self.other_players)
+
 
             elif not self.no_server_thread.is_alive():
                 self.no_server_thread.start()
