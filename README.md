@@ -5,7 +5,4 @@ The aim is to create a small multiplayer game.
 
 
 
-| Item | Price | Stock |
-|------| |-----| |-----|
-| Banana | 10$ /u | 150 |
-| Sock | 7$ /u | 220 |
+| Tables | Are | Cool | |----------|:-------------:|------:| | col 1 is| left-aligned | $1600 |
