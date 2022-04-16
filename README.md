@@ -5,7 +5,7 @@ The aim is to create a small multiplayer game.
 
 
 
-| Syntax      | Description |
+| Syntax     | Description |
 | ----------- | ----------- |
 | Header      | Title       |
 | Paragraph   | Text        |
