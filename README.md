@@ -3,9 +3,8 @@
 A small projet written in `Python` using `pygame` and `socket`.
 The aim is to create a small multiplayer game.
 
+/!\ The server __and__ the clients must be in the same network /!\
 
 ### How to use
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
-" target="_blank"><img src="http://img.youtube.com/vi/N3gMhdFNMRQ/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+1. Start by running the `server.py` file either on a dedicated computer
